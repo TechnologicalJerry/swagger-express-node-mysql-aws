@@ -10,7 +10,10 @@ export const signJwt = (user: AuthenticatedUser): string => {
     role: user.role
   };
 
-  const options: SignOptions = { expiresIn: env.jwtExpiresIn };
+  const options: SignOptions = {};
+  if (env.jwtExpiresIn) {
+    options.expiresIn = env.jwtExpiresIn;
+  }
 
   return jwt.sign(payload, env.jwtSecret as Secret, options);
 };
@@ -36,12 +39,8 @@ export const verifyJwt = (token: string): JwtPayload => {
   }
 
   return {
-    sub: subjectRaw,
-    uuid: payload.uuid,
-    email: payload.email,
-    role: payload.role,
-    iat: payload.iat,
-    exp: payload.exp
-  };
+    ...payload,
+    sub: payload.sub
+  } as JwtPayload;
 };
 
