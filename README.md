@@ -1,1 +1,1 @@
-# sanity
+# swagger-express-node-mysql-aws
