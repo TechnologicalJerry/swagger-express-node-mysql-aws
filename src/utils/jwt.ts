@@ -1,5 +1,4 @@
-import { JwtPayload as BaseJwtPayload, sign, verify } from 'jsonwebtoken';
-import type { SignOptions, Secret } from 'jsonwebtoken';
+import jwt, { JwtPayload as BaseJwtPayload, type Secret, type SignOptions } from 'jsonwebtoken';
 import env from '../config/env';
 import { AuthenticatedUser, JwtPayload } from '../types/auth';
 
@@ -11,15 +10,13 @@ export const signJwt = (user: AuthenticatedUser): string => {
     role: user.role
   };
 
-  const options: SignOptions = {
-    expiresIn: env.jwtExpiresIn
-  };
+  const options: SignOptions = { expiresIn: env.jwtExpiresIn };
 
-  return sign(payload, env.jwtSecret as Secret, options);
+  return jwt.sign(payload, env.jwtSecret as Secret, options);
 };
 
 export const verifyJwt = (token: string): JwtPayload => {
-  const decoded = verify(token, env.jwtSecret);
+  const decoded = jwt.verify(token, env.jwtSecret as Secret);
 
   if (typeof decoded === 'string') {
     throw new Error('Invalid token payload');
