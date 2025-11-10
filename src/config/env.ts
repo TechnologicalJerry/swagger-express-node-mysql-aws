@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import type { StringValue } from 'ms';
 
 const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
 
@@ -16,7 +17,7 @@ export const env = {
   port: number(process.env.PORT, 3000),
   corsOrigin: process.env.CORS_ORIGIN ?? '*',
   jwtSecret: process.env.JWT_SECRET ?? 'dev-secret',
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
+  jwtExpiresIn: (process.env.JWT_EXPIRES_IN ?? '1h') as StringValue | number,
   resetTokenExpiryMinutes: number(process.env.RESET_TOKEN_EXPIRY_MINUTES, 15),
   db: {
     host: process.env.DB_HOST ?? 'localhost',
