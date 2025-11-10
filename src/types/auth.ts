@@ -9,12 +9,10 @@ export interface AuthenticatedUser {
   role: UserRole;
 }
 
-export interface JwtPayload extends BaseJwtPayload {
-  sub: string | number;
+export type JwtPayload = BaseJwtPayload & {
+  sub: string;
   uuid: string;
   email: string;
   role: UserRole;
-  iat?: number;
-  exp?: number;
-}
+};
 
