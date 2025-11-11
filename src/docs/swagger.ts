@@ -29,8 +29,12 @@ const swaggerDefinition = {
         properties: {
           uuid: { type: 'string', format: 'uuid' },
           email: { type: 'string', format: 'email' },
+          userName: { type: 'string' },
           firstName: { type: 'string' },
           lastName: { type: 'string' },
+          gender: { type: 'string' },
+          dob: { type: 'string', format: 'date' },
+          phone: { type: 'string' },
           role: { type: 'string', enum: ['user', 'admin'] },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' }
@@ -85,12 +89,27 @@ const swaggerDefinition = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['email', 'password', 'firstName', 'lastName'],
+                required: [
+                  'email',
+                  'password',
+                  'confirmPassword',
+                  'firstName',
+                  'lastName',
+                  'userName',
+                  'gender',
+                  'dob',
+                  'phone'
+                ],
                 properties: {
                   email: { type: 'string', format: 'email' },
                   password: { type: 'string', minLength: 8 },
+                  confirmPassword: { type: 'string', minLength: 8 },
                   firstName: { type: 'string' },
-                  lastName: { type: 'string' }
+                  lastName: { type: 'string' },
+                  userName: { type: 'string' },
+                  gender: { type: 'string' },
+                  dob: { type: 'string', format: 'date' },
+                  phone: { type: 'string' }
                 }
               }
             }
