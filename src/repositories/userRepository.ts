@@ -8,8 +8,12 @@ const mapUser = (row: RowDataPacket): UserRecord => ({
   uuid: row.uuid,
   email: row.email,
   passwordHash: row.password_hash,
+  userName: row.user_name,
   firstName: row.first_name,
   lastName: row.last_name,
+  gender: row.gender,
+  dob: row.dob instanceof Date ? row.dob.toISOString().split('T')[0] : row.dob,
+  phone: row.phone,
   role: row.role as UserRole,
   createdAt: row.created_at,
   updatedAt: row.updated_at
@@ -45,9 +49,20 @@ export const listUsers = async (): Promise<UserRecord[]> => {
 export const createUser = async (input: CreateUserInput & { uuid: string }): Promise<UserRecord> => {
   const db = getPool();
   const [result] = await db.execute<ResultSetHeader>(
-    `INSERT INTO users (uuid, email, password_hash, first_name, last_name, role)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [input.uuid, input.email, input.passwordHash, input.firstName, input.lastName, input.role ?? 'user']
+    `INSERT INTO users (uuid, email, user_name, password_hash, first_name, last_name, gender, dob, phone, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      input.uuid,
+      input.email,
+      input.userName,
+      input.passwordHash,
+      input.firstName,
+      input.lastName,
+      input.gender,
+      input.dob,
+      input.phone,
+      input.role ?? 'user'
+    ]
   );
 
   const inserted = await findUserById(result.insertId);
@@ -69,6 +84,10 @@ export const updateUser = async (
     updates.push('email = ?');
     values.push(input.email);
   }
+  if (input.userName) {
+    updates.push('user_name = ?');
+    values.push(input.userName);
+  }
   if (input.firstName) {
     updates.push('first_name = ?');
     values.push(input.firstName);
@@ -76,6 +95,18 @@ export const updateUser = async (
   if (input.lastName) {
     updates.push('last_name = ?');
     values.push(input.lastName);
+  }
+  if (input.gender) {
+    updates.push('gender = ?');
+    values.push(input.gender);
+  }
+  if (input.dob) {
+    updates.push('dob = ?');
+    values.push(input.dob);
+  }
+  if (input.phone) {
+    updates.push('phone = ?');
+    values.push(input.phone);
   }
   if (input.role) {
     updates.push('role = ?');
