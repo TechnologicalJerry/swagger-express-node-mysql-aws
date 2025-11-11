@@ -9,11 +9,24 @@ import {
 import { asyncHandler } from '../utils/asyncHandler';
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
+  const rawDob = req.body.dob;
+  const dob =
+    rawDob instanceof Date
+      ? rawDob.toISOString().split('T')[0]
+      : typeof rawDob === 'string'
+      ? rawDob
+      : '';
+
   const result = await registerUser({
     email: req.body.email,
     password: req.body.password,
+    confirmPassword: req.body.confirmPassword,
+    userName: req.body.userName,
     firstName: req.body.firstName,
-    lastName: req.body.lastName
+    lastName: req.body.lastName,
+    gender: req.body.gender,
+    dob,
+    phone: req.body.phone
   });
 
   res.status(201).json(result);
