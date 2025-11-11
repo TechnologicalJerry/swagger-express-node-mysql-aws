@@ -35,13 +35,25 @@ export const runMigrations = async (): Promise<void> => {
       id INT AUTO_INCREMENT PRIMARY KEY,
       uuid VARCHAR(36) NOT NULL UNIQUE,
       email VARCHAR(255) NOT NULL UNIQUE,
+      user_name VARCHAR(100) NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
       first_name VARCHAR(100) NOT NULL,
       last_name VARCHAR(100) NOT NULL,
+      gender VARCHAR(50) NOT NULL,
+      dob DATE NOT NULL,
+      phone VARCHAR(20) NOT NULL,
       role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=INNODB;
+  `);
+
+  await db.execute(`
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS user_name VARCHAR(100) NOT NULL AFTER email,
+      ADD COLUMN IF NOT EXISTS gender VARCHAR(50) NOT NULL AFTER last_name,
+      ADD COLUMN IF NOT EXISTS dob DATE NOT NULL AFTER gender,
+      ADD COLUMN IF NOT EXISTS phone VARCHAR(20) NOT NULL AFTER dob;
   `);
 
   await db.execute(`
