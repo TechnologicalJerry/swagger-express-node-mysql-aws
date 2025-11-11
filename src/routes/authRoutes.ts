@@ -11,8 +11,15 @@ router.post(
   [
     body('email').isEmail().withMessage('Valid email required'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+    body('confirmPassword')
+      .custom((value, { req }) => value === req.body.password)
+      .withMessage('Passwords must match'),
+    body('userName').notEmpty().withMessage('Username required'),
     body('firstName').notEmpty().withMessage('First name required'),
-    body('lastName').notEmpty().withMessage('Last name required')
+    body('lastName').notEmpty().withMessage('Last name required'),
+    body('gender').notEmpty().withMessage('Gender required'),
+    body('dob').isISO8601().toDate().withMessage('Valid date of birth required'),
+    body('phone').notEmpty().withMessage('Phone number required')
   ],
   validateRequest,
   register
