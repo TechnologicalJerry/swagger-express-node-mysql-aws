@@ -10,12 +10,15 @@ import { asyncHandler } from '../utils/asyncHandler';
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const rawDob = req.body.dob;
+  console.log(req.body);
+
   const dob =
     rawDob instanceof Date
       ? rawDob.toISOString().split('T')[0]
       : typeof rawDob === 'string'
-      ? rawDob
-      : '';
+        ? rawDob
+        : '';
+  console.log(dob);
 
   const result = await registerUser({
     email: req.body.email,

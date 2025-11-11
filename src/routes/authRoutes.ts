@@ -6,8 +6,7 @@ import { validateRequest } from '../middlewares/validateRequest';
 
 const router = Router();
 
-router.post(
-  '/register',
+router.post('/register',
   [
     body('email').isEmail().withMessage('Valid email required'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),

@@ -19,22 +19,46 @@ export const getUserByUuid = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const createUser = asyncHandler(async (req: Request, res: Response) => {
+  const rawDob = req.body.dob;
+  const dob =
+    rawDob instanceof Date
+      ? rawDob.toISOString().split('T')[0]
+      : typeof rawDob === 'string'
+      ? rawDob
+      : '';
+
   const user = await createUserFromAdmin({
     email: req.body.email,
     password: req.body.password,
+    userName: req.body.userName,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
+    gender: req.body.gender,
+    dob,
+    phone: req.body.phone,
     role: req.body.role
   });
   res.status(201).json(user);
 });
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+  const rawDob = req.body.dob;
+  const dob =
+    rawDob instanceof Date
+      ? rawDob.toISOString().split('T')[0]
+      : typeof rawDob === 'string' && rawDob.length > 0
+      ? rawDob
+      : undefined;
+
   const user = await updateUserRecord(req.params.uuid, {
     email: req.body.email,
     password: req.body.password,
+    userName: req.body.userName,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
+    gender: req.body.gender,
+    dob,
+    phone: req.body.phone,
     role: req.body.role
   });
   res.json(user);
