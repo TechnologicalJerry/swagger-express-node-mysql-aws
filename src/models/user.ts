@@ -5,8 +5,12 @@ export interface UserRecord {
   uuid: string;
   email: string;
   passwordHash: string;
+  userName: string;
   firstName: string;
   lastName: string;
+  gender: string;
+  dob: string;
+  phone: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
@@ -15,8 +19,12 @@ export interface UserRecord {
 export type CreateUserInput = {
   email: string;
   passwordHash: string;
+  userName: string;
   firstName: string;
   lastName: string;
+  gender: string;
+  dob: string;
+  phone: string;
   role?: UserRole;
 };
 
