@@ -1,10 +1,31 @@
+import { existsSync } from 'fs';
 import dotenv from 'dotenv';
 import path from 'path';
 import type { StringValue } from 'ms';
 
-const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
+const envName = process.env.NODE_ENV ?? 'development';
 
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+const envFileMap: Record<string, string> = {
+  development: 'development.env',
+  production: 'production.env',
+  test: '.env.test'
+};
+
+const candidateFiles = [
+  process.env.APP_ENV_FILE,
+  envFileMap[envName],
+  '.env'
+].filter((file): file is string => Boolean(file));
+
+const resolvedEnvFile = candidateFiles.find((file) =>
+  existsSync(path.resolve(process.cwd(), file))
+);
+
+if (resolvedEnvFile) {
+  dotenv.config({ path: path.resolve(process.cwd(), resolvedEnvFile) });
+} else {
+  dotenv.config();
+}
 
 const number = (value: string | undefined, fallback: number): number => {
   if (!value) return fallback;
