@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import type { StringValue } from 'ms';
 
-const envName = process.env.NODE_ENV ?? 'development';
+// const envName = process.env.NODE_ENV ?? 'development';
+const envName = process.env.NODE_ENV ?? '';
 
 const envFileMap: Record<string, string> = {
   development: 'development.env',
