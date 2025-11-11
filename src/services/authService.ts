@@ -15,12 +15,18 @@ import {
 import { hashPassword, verifyPassword } from '../utils/password';
 import { signJwt } from '../utils/jwt';
 import { AuthenticatedUser } from '../types/auth';
+import { UserRecord } from '../models/user';
 
 export interface RegisterInput {
   email: string;
   password: string;
+  confirmPassword: string;
+  userName: string;
   firstName: string;
   lastName: string;
+  gender: string;
+  dob: string;
+  phone: string;
 }
 
 export interface LoginInput {
@@ -33,7 +39,7 @@ export interface ResetPasswordInput {
   password: string;
 }
 
-const toAuthenticatedUser = (user: Awaited<ReturnType<typeof findUserById>>): AuthenticatedUser => {
+const toAuthenticatedUser = (user: UserRecord | null): AuthenticatedUser => {
   if (!user) {
     throw new Error('User not found');
   }
@@ -46,17 +52,31 @@ const toAuthenticatedUser = (user: Awaited<ReturnType<typeof findUserById>>): Au
 };
 
 export const registerUser = async (input: RegisterInput) => {
+  if (input.password !== input.confirmPassword) {
+    throw new Error('Passwords do not match');
+  }
+
   const existing = await findUserByEmail(input.email);
   if (existing) {
     throw new Error('Email already in use');
   }
 
+  const dobDate = new Date(input.dob);
+  if (Number.isNaN(dobDate.getTime())) {
+    throw new Error('Invalid date of birth');
+  }
+  const dob = dobDate.toISOString().split('T')[0];
+
   const passwordHash = await hashPassword(input.password);
   const user = await createUser({
     uuid: uuidv4(),
     email: input.email,
+    userName: input.userName,
     firstName: input.firstName,
     lastName: input.lastName,
+    gender: input.gender,
+    dob,
+    phone: input.phone,
     passwordHash,
     role: 'user'
   });
@@ -64,7 +84,7 @@ export const registerUser = async (input: RegisterInput) => {
   const authUser = toAuthenticatedUser(user);
 
   return {
-    user: sanitizeUser(authUser, user.firstName, user.lastName),
+    user: sanitizeUser(user),
     token: signJwt(authUser)
   };
 };
@@ -83,7 +103,7 @@ export const loginUser = async (input: LoginInput) => {
   const authUser = toAuthenticatedUser(user);
 
   return {
-    user: sanitizeUser(authUser, user.firstName, user.lastName),
+    user: sanitizeUser(user),
     token: signJwt(authUser)
   };
 };
@@ -94,7 +114,7 @@ export const getProfile = async (uuid: string) => {
     throw new Error('User not found');
   }
 
-  return sanitizeUser(toAuthenticatedUser(user), user.firstName, user.lastName);
+  return sanitizeUser(user);
 };
 
 export const forgotPassword = async (email: string) => {
@@ -133,11 +153,17 @@ export const resetPassword = async (input: ResetPasswordInput) => {
   return { message: 'Password updated successfully.' };
 };
 
-const sanitizeUser = (user: AuthenticatedUser, firstName: string, lastName: string) => ({
+const sanitizeUser = (user: UserRecord) => ({
   uuid: user.uuid,
   email: user.email,
   role: user.role,
-  firstName,
-  lastName
+  firstName: user.firstName,
+  lastName: user.lastName,
+  userName: user.userName,
+  gender: user.gender,
+  dob: user.dob,
+  phone: user.phone,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt
 });
 
