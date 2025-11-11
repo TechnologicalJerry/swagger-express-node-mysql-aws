@@ -12,10 +12,12 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "types": ["node"],
+    "typeRoots": ["node_modules/@types", "src/types"],
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "files": ["src/types/express.d.ts"]
 }
 
