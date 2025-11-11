@@ -1,4 +1,5 @@
 import { createPool, Pool } from 'mysql2/promise';
+import type { RowDataPacket } from 'mysql2/promise';
 import env from './env';
 
 let pool: Pool | null = null;
@@ -30,6 +31,32 @@ export const closePool = async (): Promise<void> => {
 export const runMigrations = async (): Promise<void> => {
   const db = getPool();
 
+  const identifierPattern = /^[a-zA-Z0-9_]+$/;
+
+  const ensureColumn = async (
+    table: string,
+    column: string,
+    columnDefinition: string,
+    after?: string
+  ) => {
+    if (!identifierPattern.test(table) || !identifierPattern.test(column)) {
+      throw new Error('Invalid table or column identifier');
+    }
+    if (after && !identifierPattern.test(after)) {
+      throw new Error('Invalid reference column identifier');
+    }
+
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SHOW COLUMNS FROM \`${table}\` LIKE '${column}'`
+    );
+    if (!rows.length) {
+      const afterClause = after ? ` AFTER \`${after}\`` : '';
+      await db.execute(
+        `ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${columnDefinition}${afterClause}`
+      );
+    }
+  };
+
   await db.execute(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,13 +75,10 @@ export const runMigrations = async (): Promise<void> => {
     ) ENGINE=INNODB;
   `);
 
-  await db.execute(`
-    ALTER TABLE users
-      ADD COLUMN IF NOT EXISTS user_name VARCHAR(100) NOT NULL AFTER email,
-      ADD COLUMN IF NOT EXISTS gender VARCHAR(50) NOT NULL AFTER last_name,
-      ADD COLUMN IF NOT EXISTS dob DATE NOT NULL AFTER gender,
-      ADD COLUMN IF NOT EXISTS phone VARCHAR(20) NOT NULL AFTER dob;
-  `);
+  await ensureColumn('users', 'user_name', 'VARCHAR(100) NOT NULL', 'email');
+  await ensureColumn('users', 'gender', 'VARCHAR(50) NOT NULL', 'last_name');
+  await ensureColumn('users', 'dob', 'DATE NOT NULL', 'gender');
+  await ensureColumn('users', 'phone', 'VARCHAR(20) NOT NULL', 'dob');
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS products (
